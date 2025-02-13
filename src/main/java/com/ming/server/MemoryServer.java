@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 public class MemoryServer {
     public void StartServer(){
         LoggingHandler LOGGING_HANDLER = new LoggingHandler(LogLevel.DEBUG);
-        int a = 1;
         NioEventLoopGroup bosses = new NioEventLoopGroup();
         NioEventLoopGroup workers = new NioEventLoopGroup();
         try {
