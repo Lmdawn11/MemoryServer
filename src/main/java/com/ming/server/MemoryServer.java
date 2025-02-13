@@ -29,7 +29,7 @@ public class MemoryServer {
                 @Override
                 protected void initChannel(SocketChannel ch) throws Exception {
                     ch.pipeline().addLast(new StringDecoder());
-                    ch.pipeline().addLast(LOGGING_HANDLER)；
+                    ch.pipeline().addLast(LOGGING_HANDLER);
                     ch.pipeline().addLast("hi",new ChannelInboundHandlerAdapter(){
                         @Override
                         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
