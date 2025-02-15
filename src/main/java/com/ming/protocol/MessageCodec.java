@@ -15,7 +15,6 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 
 @Slf4j
-@ChannelHandler.Sharable
 public class MessageCodec extends ByteToMessageCodec<Message> {
 
     @Override
