@@ -172,7 +172,6 @@ public class AOFManager {
             return;
         }
 
-
         // **Step 3: 追加 rewriteBufferQueue 里的最新数据**
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(AOF_REWRITE_FILE, true))) {
             while (!rewriteBufferQueue.isEmpty()) {
