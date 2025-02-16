@@ -19,6 +19,8 @@ public abstract class Message implements Serializable {
 
     public abstract int getMessageType();
 
+    public static final int RewriteRequestMessage = 101;
+    public static final int RewriteResponseMessage = 102;
     public static final int LoginRequestMessage = 0;
     public static final int LoginResponseMessage = 1;
     public static final int SetRequestMessage = 2;
@@ -27,6 +29,7 @@ public abstract class Message implements Serializable {
     public static final int GetResponseMessage = 5;
     public static final int DeleteRequestMessage = 6;
     public static final int DeleteResponseMessage = 7;
+
     private static final Map<Integer, Class<?>> messageClasses = new HashMap<>();
 
     static {

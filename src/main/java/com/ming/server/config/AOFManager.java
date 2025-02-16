@@ -6,16 +6,27 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.*;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
 public class AOFManager {
     private static final String AOF_FILE = "persistence/aof/aof.log"; // AOF 文件路径
-    private final BlockingQueue<String[]> aofQueue = new LinkedBlockingQueue<>(); // AOF 队列
+    private static final String AOF_REWRITE_FILE = "persistence/aof/aof_rewrite.log"; // AOF 整理文件
+
+    private final BlockingQueue<String[]> aofQueue = new LinkedBlockingQueue<>(); // **AOF 记录队列**
+    private final BlockingQueue<String[]> rewriteBufferQueue = new LinkedBlockingQueue<>(); // **AOF 整理缓冲队列**
+    private static final long AOF_MAX_SIZE = 10 * 1024 * 1024; // **10MB 触发整理**
     private volatile boolean running = true;
     private final Thread aofThread;
+    private volatile boolean rewriteMode = false; // **标记 AOF Rewrite 状态**
+
+    private final ReentrantLock lock = new ReentrantLock();
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     // **单例模式 - 只初始化一次**
     private static volatile AOFManager instance;
@@ -25,8 +36,19 @@ public class AOFManager {
         aofThread = new Thread(this::processAOFQueue);
         aofThread.start();
         readAOFToMemory();//读取aof中的内容到memory中
+        scheduler.scheduleAtFixedRate(this::checkAOFSizeAndRewrite,10,10, TimeUnit.MINUTES);
     }
 
+    /**
+     * 检查 AOF 文件大小，并决定是否触发 rewriteAOF
+     */
+    private void checkAOFSizeAndRewrite() {
+        File aofFile = new File(AOF_FILE);
+        if (aofFile.exists() && aofFile.length() > AOF_MAX_SIZE) {
+            log.info("[AOF] 文件过大，触发 AOF Rewrite...");
+            rewriteAOF();
+        }
+    }
     /*
     启动时恢复AOF到内存中
      */
@@ -45,23 +67,26 @@ public class AOFManager {
         try (BufferedReader reader = Files.newBufferedReader(Paths.get(AOF_FILE), StandardCharsets.UTF_8)) {
             String line;
             while ((line = reader.readLine()) != null) {
-                processAOFCommand(reader, line);
+                executeRecoveredCommand(parseAOFCommand(reader, line));;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
     }
-
-    private void processAOFCommand(BufferedReader reader, String firstLine) throws IOException {
-        if (!firstLine.startsWith("*")) return; //不是确定的格式，直接返回
+    /**
+    * 解析命令
+     **/
+    private String[] parseAOFCommand(BufferedReader reader, String firstLine) throws IOException {
+        if (!firstLine.startsWith("*")) return new String[]{};
         int argCount = Integer.parseInt(firstLine.substring(1));
         String[] commandParts = new String[argCount];
         for (int i = 0; i < argCount; i++) {
-            reader.readLine();// 跳过 `$length` 行
+            reader.readLine();
             commandParts[i] = reader.readLine();
         }
-        executeRecoveredCommand(commandParts);
+        reader.readLine(); //去掉那个换行符
+        return commandParts;
     }
 
     /*
@@ -84,9 +109,9 @@ public class AOFManager {
         }
     }
 
-    /*
+    /**
     单例模式，只初始化一次
-     */
+     **/
     public static AOFManager getAOFManager() {
         if (instance == null) {
             synchronized (AOFManager.class) {
@@ -99,10 +124,94 @@ public class AOFManager {
     }
 
     /**
+     * AOF文件整理（不会影响主线程）
+     */
+    public synchronized void rewriteAOF() {
+        log.info("开始整理 rewriteAOF ");
+        rewriteMode = true; // **启用 rewrite 模式，开始记录新的数据**
+
+        File file = new File(AOF_REWRITE_FILE);    //确保rewrite aof文件存在
+        if (!file.exists()) {
+            File directory = file.getParentFile();
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+        }
+
+        Map<String, String> latestEntries = new HashMap<>();
+
+        // **Step 1: 读取 AOF 旧数据 以后还需要再增加新的命令
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get(AOF_FILE), StandardCharsets.UTF_8)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] commandParts = parseAOFCommand(reader, line);// **处理旧 AOF 记录**
+                String key = commandParts[1];
+                if ("set".equalsIgnoreCase(commandParts[0])) {
+                    latestEntries.put(key, formatRESP(commandParts));
+                } else if ("del".equalsIgnoreCase(commandParts[0])) {
+                    latestEntries.remove(key);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            rewriteMode = false; // **整理失败，恢复模式**
+            return;
+        }
+
+
+        // **Step 2: 写入整理后的 AOF_REWRITE_FILE**
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(AOF_REWRITE_FILE, false))) {
+            for (Map.Entry<String, String> entry : latestEntries.entrySet()) {
+                writer.write(entry.getValue());
+                writer.newLine();
+            }
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            rewriteMode = false; // **整理失败，恢复模式**
+            return;
+        }
+
+        // **Step 3: 追加 rewriteBufferQueue 里的最新数据**
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(AOF_REWRITE_FILE, true))) {
+            while (!rewriteBufferQueue.isEmpty()) {
+                String[] commandParts = rewriteBufferQueue.poll();
+                writer.write(formatRESP(commandParts));
+                writer.newLine();
+            }
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            rewriteMode = false; // **整理失败，恢复模式**
+            return;
+        }
+
+        // **Step 4: 原子替换旧 AOF 文件**
+        try {
+            Files.deleteIfExists(Paths.get(AOF_FILE)); // 确保原 AOF_FILE 被删除
+            Files.move(Paths.get(AOF_REWRITE_FILE), Paths.get(AOF_FILE), StandardCopyOption.REPLACE_EXISTING);
+            log.info("[AOF] 整理完成，文件已更新！");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            rewriteMode = false; // **关闭 rewriteMode**
+        }
+    }
+
+
+    /**
      * 记录 AOF 命令，格式为 ["SET", "mykey", "myvalue"]
      */
     public void logCommand(String... commandParts) {
-        aofQueue.offer(commandParts); // 放入队列
+        lock.lock();
+        try{
+            aofQueue.offer(commandParts); // 放入队列
+            if (rewriteMode) {
+                rewriteBufferQueue.offer(commandParts);
+            }
+        }finally {
+            lock.unlock();
+        }
     }
 
     /**

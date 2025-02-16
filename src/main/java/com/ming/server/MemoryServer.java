@@ -1,11 +1,9 @@
 package com.ming.server;
 
+import com.ming.message.rewrite.RewriteRequestMessage;
 import com.ming.protocol.MessageCodec;
 import com.ming.server.config.SetConfig;
-import com.ming.server.handler.AofHandler;
-import com.ming.server.handler.DelRequestMessageHandler;
-import com.ming.server.handler.GetRequestMessageHandler;
-import com.ming.server.handler.SetRequestMessageHandler;
+import com.ming.server.handler.*;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -33,7 +31,7 @@ public class MemoryServer {
         SetRequestMessageHandler setRequestMessageHandler = new SetRequestMessageHandler();
         GetRequestMessageHandler getRequestMessageHandler = new GetRequestMessageHandler();
         DelRequestMessageHandler delRequestMessageHandler = new DelRequestMessageHandler();
-
+        RewriteRequestMessageHandler rewriteRequestMessageHandler = new RewriteRequestMessageHandler();
         NioEventLoopGroup bosses = new NioEventLoopGroup();
         NioEventLoopGroup workers = new NioEventLoopGroup();
         try {
@@ -56,6 +54,7 @@ public class MemoryServer {
                     ch.pipeline().addLast(setRequestMessageHandler);
                     ch.pipeline().addLast(getRequestMessageHandler);
                     ch.pipeline().addLast(delRequestMessageHandler);
+                    ch.pipeline().addLast(rewriteRequestMessageHandler);
                 }
 
             });

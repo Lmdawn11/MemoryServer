@@ -3,6 +3,7 @@ package com.ming.client;
 import com.ming.client.handler.ClientHandler;
 import com.ming.message.del.DelRequestMessage;
 import com.ming.message.get.GetRequestMessage;
+import com.ming.message.rewrite.RewriteRequestMessage;
 import com.ming.message.set.SetRequestMessage;
 import com.ming.protocol.MessageCodec;
 import io.netty.bootstrap.Bootstrap;
@@ -48,6 +49,7 @@ public class MemoryClient {
                                     System.out.println("set key value ttl");
                                     System.out.println("get key");
                                     System.out.println("delete key");
+                                    System.out.println("rewrite");
                                     String line = scanner.nextLine();
                                     String[] command = line.split(" ");
                                     switch (command[0]) {
@@ -65,6 +67,9 @@ public class MemoryClient {
                                             break;
                                         case "del":
                                             ctx.writeAndFlush(new DelRequestMessage(command[1]));
+                                            break;
+                                        case "rewrite":
+                                            ctx.writeAndFlush(new RewriteRequestMessage(command[0]));
                                             break;
                                         case "quit":
                                             ctx.channel().close();

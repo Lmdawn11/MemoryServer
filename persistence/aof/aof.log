@@ -26,3 +26,25 @@ get
 $4
 name
 
+*2
+$3
+get
+$4
+name
+
+*4
+$3
+set
+$4
+name
+$6
+wangwu
+$2
+-1
+
+*2
+$3
+get
+$4
+name
+
