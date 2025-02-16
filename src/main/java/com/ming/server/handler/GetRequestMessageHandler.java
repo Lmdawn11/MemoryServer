@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 public class GetRequestMessageHandler extends SimpleChannelInboundHandler<GetRequestMessage> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, GetRequestMessage msg) throws Exception {
-        SetConfig setShards = SetConfig.getInstance();
+        SetConfig setShards = SetConfig.getSetConfig();
         String key = msg.getKey();
         String s = setShards.get(key);
         GetResponseMessage resmsg;

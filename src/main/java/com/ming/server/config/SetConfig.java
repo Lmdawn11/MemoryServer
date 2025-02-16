@@ -30,7 +30,7 @@ public class SetConfig {
         startCleanupTask(); // 开启定时清理任务
     }
 
-    public static SetConfig getInstance() {
+    public static SetConfig getSetConfig() {
         if (instance == null) {
             synchronized (SetConfig.class) {
                 if (instance == null) {

@@ -16,7 +16,7 @@ public class SetRequestMessageHandler extends SimpleChannelInboundHandler<SetReq
         String key = msg.getKey();
         String value = msg.getValue();
         int ttl = msg.getTtl();
-        SetConfig setShards = SetConfig.getInstance();
+        SetConfig setShards = SetConfig.getSetConfig();
         setShards.set(key,value,ttl);
         log.info("存储成功,key:{},value:{},ttl:{}", key, value, ttl);
         SetResponseMessage ok = new SetResponseMessage(true, "OK");

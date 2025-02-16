@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 public class DelRequestMessageHandler extends SimpleChannelInboundHandler<DelRequestMessage> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DelRequestMessage msg) throws Exception {
-        SetConfig setShards = SetConfig.getInstance();
+        SetConfig setShards = SetConfig.getSetConfig();
         String key = msg.getKey();
         Boolean delete = setShards.delete(key);
         DelResponseMessage resmsg;
