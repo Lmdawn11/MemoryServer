@@ -25,6 +25,8 @@ public abstract class Message implements Serializable {
     public static final int SetResponseMessage = 3;
     public static final int GetRequestMessage = 4;
     public static final int GetResponseMessage = 5;
+    public static final int DeleteRequestMessage = 6;
+    public static final int DeleteResponseMessage = 7;
     private static final Map<Integer, Class<?>> messageClasses = new HashMap<>();
 
     static {
@@ -34,5 +36,7 @@ public abstract class Message implements Serializable {
         messageClasses.put(SetResponseMessage, com.ming.message.set.SetResponseMessage.class);
         messageClasses.put(GetRequestMessage, com.ming.message.get.GetRequestMessage.class);
         messageClasses.put(GetResponseMessage, com.ming.message.get.GetResponseMessage.class);
+        messageClasses.put(DeleteRequestMessage,com.ming.message.del.DelRequestMessage.class);
+        messageClasses.put(DeleteResponseMessage,com.ming.message.del.DelResponseMessage.class);
     }
 }

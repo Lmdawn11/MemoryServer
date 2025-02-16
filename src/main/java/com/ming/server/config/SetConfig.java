@@ -69,10 +69,15 @@ public class SetConfig {
         }
     }
 
-    public void delete(String key) {
-        int index = getShardIndex(key);
-        setShards.get(index).remove(key);
-        ttlMap.remove(key);
+    public Boolean delete(String key) {
+        try {
+            int index = getShardIndex(key);
+            setShards.get(index).remove(key);
+            ttlMap.remove(key);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     // 定期清理 ttlMap

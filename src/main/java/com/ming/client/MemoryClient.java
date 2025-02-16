@@ -1,8 +1,7 @@
 package com.ming.client;
 
 import com.ming.client.handler.ClientHandler;
-import com.ming.client.handler.GetResponseHandler;
-import com.ming.client.handler.SetResponseHandler;
+import com.ming.message.del.DelRequestMessage;
 import com.ming.message.get.GetRequestMessage;
 import com.ming.message.set.SetRequestMessage;
 import com.ming.protocol.MessageCodec;
@@ -22,8 +21,8 @@ public class MemoryClient {
     public void MemoryClient() {
         LoggingHandler LOGGING_HANDLER = new LoggingHandler(LogLevel.DEBUG);
         MessageCodec messageCodec = new MessageCodec();
-        SetResponseHandler setResponseHandler = new SetResponseHandler();
-        GetResponseHandler getResponseHandler = new GetResponseHandler();
+//        SetResponseHandler setResponseHandler = new SetResponseHandler();
+//        GetResponseHandler getResponseHandler = new GetResponseHandler();
         ClientHandler clientHandler = new ClientHandler();
 
         NioEventLoopGroup worker = new NioEventLoopGroup();
@@ -37,9 +36,8 @@ public class MemoryClient {
                     ch.pipeline().addLast(LOGGING_HANDLER);
                     ch.pipeline().addLast(messageCodec);
                     ch.pipeline().addLast("Response", clientHandler);
-                    ch.pipeline().addLast("setResponse", setResponseHandler);
-                    ch.pipeline().addLast("getResponse", getResponseHandler);
-
+//                    ch.pipeline().addLast("setResponse", setResponseHandler);
+//                    ch.pipeline().addLast("getResponse", getResponseHandler);
                     ch.pipeline().addLast("hi",new ChannelInboundHandlerAdapter(){
                         @Override
                         public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -64,6 +62,9 @@ public class MemoryClient {
                                             break;
                                         case "get":
                                             ctx.writeAndFlush(new GetRequestMessage(command[1]));
+                                            break;
+                                        case "del":
+                                            ctx.writeAndFlush(new DelRequestMessage(command[1]));
                                             break;
                                         case "quit":
                                             ctx.channel().close();
