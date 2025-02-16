@@ -1,14 +1,16 @@
 package com.ming.client;
 
 import com.ming.client.handler.ClientHandler;
-import com.ming.message.SetRequestMessage;
+import com.ming.client.handler.GetResponseHandler;
+import com.ming.client.handler.SetResponseHandler;
+import com.ming.message.get.GetRequestMessage;
+import com.ming.message.set.SetRequestMessage;
 import com.ming.protocol.MessageCodec;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +22,8 @@ public class MemoryClient {
     public void MemoryClient() {
         LoggingHandler LOGGING_HANDLER = new LoggingHandler(LogLevel.DEBUG);
         MessageCodec messageCodec = new MessageCodec();
+        SetResponseHandler setResponseHandler = new SetResponseHandler();
+        GetResponseHandler getResponseHandler = new GetResponseHandler();
         ClientHandler clientHandler = new ClientHandler();
 
         NioEventLoopGroup worker = new NioEventLoopGroup();
@@ -32,6 +36,10 @@ public class MemoryClient {
                 protected void initChannel(SocketChannel ch) throws Exception {
                     ch.pipeline().addLast(LOGGING_HANDLER);
                     ch.pipeline().addLast(messageCodec);
+                    ch.pipeline().addLast("Response", clientHandler);
+                    ch.pipeline().addLast("setResponse", setResponseHandler);
+                    ch.pipeline().addLast("getResponse", getResponseHandler);
+
                     ch.pipeline().addLast("hi",new ChannelInboundHandlerAdapter(){
                         @Override
                         public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -54,6 +62,9 @@ public class MemoryClient {
                                                 ctx.writeAndFlush(new SetRequestMessage(command[1],command[2],i));
                                             }
                                             break;
+                                        case "get":
+                                            ctx.writeAndFlush(new GetRequestMessage(command[1]));
+                                            break;
                                         case "quit":
                                             ctx.channel().close();
                                             break;
@@ -63,7 +74,7 @@ public class MemoryClient {
                             },"system in ").start();
                         }
                     });
-                    ch.pipeline().addLast("output",clientHandler);
+
                 }
 
             });

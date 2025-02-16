@@ -1,11 +1,12 @@
-package com.ming.message;
+package com.ming.message.set;
 
+import com.ming.message.Message;
 import lombok.Data;
 import lombok.ToString;
 
 @Data
 @ToString(callSuper=true)
-public class SetRequestMessage extends Message{
+public class SetRequestMessage extends Message {
 
     private String key;
     private String value;

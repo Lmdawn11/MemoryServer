@@ -1,7 +1,7 @@
 package com.ming.server.handler;
 
-import com.ming.message.SetRequestMessage;
-import com.ming.message.SetResponseMessage;
+import com.ming.message.set.SetRequestMessage;
+import com.ming.message.set.SetResponseMessage;
 import com.ming.server.config.SetConfig;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -19,6 +19,8 @@ public class SetRequestMessageHandler extends SimpleChannelInboundHandler<SetReq
         SetConfig setShards = SetConfig.getInstance();
         setShards.set(key,value,ttl);
         log.info("存储成功,key:{},value:{},ttl:{}", key, value, ttl);
-        ctx.writeAndFlush(new SetResponseMessage(true,"OK"));
+        SetResponseMessage ok = new SetResponseMessage(true, "OK");
+        log.info(ok.toString());
+        ctx.writeAndFlush(ok);
     }
 }

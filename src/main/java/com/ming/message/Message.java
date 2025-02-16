@@ -23,12 +23,16 @@ public abstract class Message implements Serializable {
     public static final int LoginResponseMessage = 1;
     public static final int SetRequestMessage = 2;
     public static final int SetResponseMessage = 3;
+    public static final int GetRequestMessage = 4;
+    public static final int GetResponseMessage = 5;
     private static final Map<Integer, Class<?>> messageClasses = new HashMap<>();
 
     static {
         messageClasses.put(LoginRequestMessage, LoginRequestMessage.class);
         messageClasses.put(LoginResponseMessage, LoginResponseMessage.class);
-        messageClasses.put(SetRequestMessage, SetRequestMessage.class);
-        messageClasses.put(SetResponseMessage, SetResponseMessage.class);
+        messageClasses.put(SetRequestMessage, com.ming.message.set.SetRequestMessage.class);
+        messageClasses.put(SetResponseMessage, com.ming.message.set.SetResponseMessage.class);
+        messageClasses.put(GetRequestMessage, com.ming.message.get.GetRequestMessage.class);
+        messageClasses.put(GetResponseMessage, com.ming.message.get.GetResponseMessage.class);
     }
 }

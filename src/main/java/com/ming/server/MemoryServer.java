@@ -2,6 +2,7 @@ package com.ming.server;
 
 import com.ming.protocol.MessageCodec;
 import com.ming.server.config.SetConfig;
+import com.ming.server.handler.GetRequestMessageHandler;
 import com.ming.server.handler.SetRequestMessageHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -27,6 +28,7 @@ public class MemoryServer {
         LoggingHandler LOGGING_HANDLER = new LoggingHandler(LogLevel.DEBUG);
         MessageCodec messageCodec = new MessageCodec();
         SetRequestMessageHandler setRequestMessageHandler = new SetRequestMessageHandler();
+        GetRequestMessageHandler getRequestMessageHandler = new GetRequestMessageHandler();
 
         NioEventLoopGroup bosses = new NioEventLoopGroup();
         NioEventLoopGroup workers = new NioEventLoopGroup();
@@ -47,6 +49,7 @@ public class MemoryServer {
                         }
                     });
                     ch.pipeline().addLast(setRequestMessageHandler);
+                    ch.pipeline().addLast(getRequestMessageHandler);
                 }
 
             });
