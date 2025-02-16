@@ -2,6 +2,7 @@ package com.ming.server;
 
 import com.ming.protocol.MessageCodec;
 import com.ming.server.config.SetConfig;
+import com.ming.server.handler.AofHandler;
 import com.ming.server.handler.DelRequestMessageHandler;
 import com.ming.server.handler.GetRequestMessageHandler;
 import com.ming.server.handler.SetRequestMessageHandler;
@@ -28,6 +29,7 @@ public class MemoryServer {
     public void StartServer(){
         LoggingHandler LOGGING_HANDLER = new LoggingHandler(LogLevel.DEBUG);
         MessageCodec messageCodec = new MessageCodec();
+        AofHandler aofHandler = new AofHandler();
         SetRequestMessageHandler setRequestMessageHandler = new SetRequestMessageHandler();
         GetRequestMessageHandler getRequestMessageHandler = new GetRequestMessageHandler();
         DelRequestMessageHandler delRequestMessageHandler = new DelRequestMessageHandler();
@@ -43,6 +45,7 @@ public class MemoryServer {
                 protected void initChannel(SocketChannel ch) throws Exception {
                     ch.pipeline().addLast(LOGGING_HANDLER);
                     ch.pipeline().addLast(messageCodec);
+                    ch.pipeline().addLast(aofHandler);
                     ch.pipeline().addLast("hi", new ChannelInboundHandlerAdapter(){
                         @Override
                         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
