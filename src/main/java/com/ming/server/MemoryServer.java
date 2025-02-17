@@ -44,13 +44,6 @@ public class MemoryServer {
                     ch.pipeline().addLast(LOGGING_HANDLER);
                     ch.pipeline().addLast(messageCodec);
                     ch.pipeline().addLast(aofHandler);
-                    ch.pipeline().addLast("hi", new ChannelInboundHandlerAdapter(){
-                        @Override
-                        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-                            log.info(msg.toString());
-                            super.channelRead(ctx, msg);
-                        }
-                    });
                     ch.pipeline().addLast(setRequestMessageHandler);
                     ch.pipeline().addLast(getRequestMessageHandler);
                     ch.pipeline().addLast(delRequestMessageHandler);

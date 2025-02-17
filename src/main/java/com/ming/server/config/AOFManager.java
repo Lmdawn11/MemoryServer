@@ -22,7 +22,7 @@ public class AOFManager {
     private final BlockingQueue<String[]> rewriteBufferQueue = new LinkedBlockingQueue<>(); // **AOF 整理缓冲队列**
     private static final long AOF_MAX_SIZE = 10 * 1024 * 1024; // **10MB 触发整理**
     private volatile boolean running = true;
-    private final Thread aofThread;
+    private Thread aofThread;
     private volatile boolean rewriteMode = false; // **标记 AOF Rewrite 状态**
 
     private final ReentrantLock lock = new ReentrantLock();
@@ -188,17 +188,36 @@ public class AOFManager {
         }
 
         // **Step 4: 原子替换旧 AOF 文件**
+        // **暂停 AOF 线程，确保不会写入 AOF_FILE**
+        running = false;
+        try {
+            aofThread.join(); //等待aof线程结束
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.info("AOF join错误");
+        }
+
         try {
             Files.deleteIfExists(Paths.get(AOF_FILE)); // 确保原 AOF_FILE 被删除
             Files.move(Paths.get(AOF_REWRITE_FILE), Paths.get(AOF_FILE), StandardCopyOption.REPLACE_EXISTING);
             log.info("[AOF] 整理完成，文件已更新！");
         } catch (IOException e) {
             e.printStackTrace();
+            log.error("[AOF] AOF Rewrite 失败，保留原文件");
         } finally {
             rewriteMode = false; // **关闭 rewriteMode**
+            restartAOFThread();
         }
     }
 
+    /**
+     * 重新启动 AOF 线程
+     */
+    private void restartAOFThread() {
+        running = true;
+        aofThread = new Thread(this::processAOFQueue);
+        aofThread.start();
+    }
 
     /**
      * 记录 AOF 命令，格式为 ["SET", "mykey", "myvalue"]

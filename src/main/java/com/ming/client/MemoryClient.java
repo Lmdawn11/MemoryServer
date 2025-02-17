@@ -3,6 +3,7 @@ package com.ming.client;
 import com.ming.client.handler.ClientHandler;
 import com.ming.message.del.DelRequestMessage;
 import com.ming.message.get.GetRequestMessage;
+import com.ming.message.get.GetResponseMessage;
 import com.ming.message.rewrite.RewriteRequestMessage;
 import com.ming.message.set.SetRequestMessage;
 import com.ming.protocol.MessageCodec;
@@ -16,6 +17,7 @@ import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class MemoryClient {
@@ -81,6 +83,48 @@ public class MemoryClient {
                         }
                     });
 
+// 测试qps
+//                    ch.pipeline().addLast("hi", new ChannelInboundHandlerAdapter() {
+//                        private final AtomicInteger requestCount = new AtomicInteger(0);
+//                        private final AtomicInteger responseCount = new AtomicInteger(0);
+//                        private long startTime;
+//                        private long endTime;
+//
+//                        @Override
+//                        public void channelActive(ChannelHandlerContext ctx) throws Exception {
+//                            log.info("client connected");
+//
+//                            startTime = System.currentTimeMillis();
+//                            endTime = startTime + 2_000; // **60 秒后停止**
+//
+//                            // **发送第一个请求**
+//                            sendRequest(ctx);
+//                        }
+//
+//                        @Override
+//                        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+//                            if (msg instanceof GetResponseMessage) {
+//                                responseCount.incrementAndGet();
+//
+//                                // **如果时间未到，继续发送请求**
+//                                if (System.currentTimeMillis() < endTime) {
+//                                    sendRequest(ctx);
+//                                } else {
+//                                    // **时间到，计算 QPS**
+//                                    int totalRequests = requestCount.get();
+//                                    int totalResponses = responseCount.get();
+//                                    log.info("[QPS Test] 60s 内发送请求: {}，收到响应: {}，客户端 QPS: {}，服务器 QPS: {}",
+//                                            totalRequests, totalResponses, totalRequests / 60, totalResponses / 60);
+//                                    ctx.channel().close();
+//                                }
+//                            }
+//                        }
+//
+//                        private void sendRequest(ChannelHandlerContext ctx) {
+//                            requestCount.incrementAndGet();
+//                            ctx.writeAndFlush(new GetRequestMessage("name"));
+//                        }
+//                    });
                 }
 
             });
