@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static java.nio.file.Files.delete;
 
@@ -15,6 +16,9 @@ public class SetConfig {
     private final ScheduledExecutorService cleaner; // 定时清理任务
     private static final int CLEAN_BATCH_SIZE = 100;  // 每次最多清理 100 个 key
     private static final double THRESHOLD_PERCENT = 0.1; // 10% 过期 key 触发暂停
+    private final ReentrantLock setlock = new ReentrantLock();
+    private final ReentrantLock dellock = new ReentrantLock();
+    private final ReentrantLock getlock = new ReentrantLock();
 
     //实现单例模式
     private static volatile SetConfig instance;
@@ -47,38 +51,53 @@ public class SetConfig {
         return (key.hashCode() & 0x7FFFFFFF) % SHARD_COUNT;
     }
 
-    // 获取 key
+    // 使用computeIfPresent保证get del的原子性操作
     public String get(String key) {
-        Long expireTime = ttlMap.get(key);
-        if (expireTime != null && System.currentTimeMillis() > expireTime) {
-            // 过期了，删除 key
-            delete(key);
-            return null;
+        getlock.lock();
+        String value = null;
+        try {
+            Long expireTime = ttlMap.get(key);
+            if (expireTime != null && System.currentTimeMillis() > expireTime) {
+                delete(key);                  // 过期了，删除 key
+                return null;
+            }
+            int index = getShardIndex(key);
+            value = setShards.get(index).get(key);
+        }finally {
+            getlock.unlock();
+            return value;
         }
-        int index = getShardIndex(key);
-        return setShards.get(index).get(key);
+
     }
 
-    // 存储 key-value，带 TTL
+    // 存储 key-value，带 TTL ，由于要存两个hashmap，那么此时有4个操作，单个操作是原子性的，但是多个操作执行顺序将导致并发问题
     public void set(String key, String value, int ttlSeconds) {
-        int index = getShardIndex(key);
-        setShards.get(index).put(key, value);
-        if (ttlSeconds > 0) {
-            long expireTime = System.currentTimeMillis() + (ttlSeconds * 1000L);
-            ttlMap.put(key, expireTime);
-        }
-    }
-
-    public Boolean delete(String key) {
+        setlock.lock();
         try {
             int index = getShardIndex(key);
-            setShards.get(index).remove(key);
-            ttlMap.remove(key);
-            return true;
-        } catch (Exception e) {
-            return false;
+            setShards.get(index).put(key, value);
+            if (ttlSeconds > 0) {
+                long expireTime = System.currentTimeMillis() + (ttlSeconds * 1000L);
+                ttlMap.put(key, expireTime);
+            }
+        } finally {
+            setlock.unlock();
         }
     }
+
+    // 防止多个线程同时删除一个key，保证原子性
+    public Boolean delete(String key) {
+        dellock.lock();
+        try {
+            int index = getShardIndex(key);
+            ttlMap.remove(key);
+            setShards.get(index).remove(key);
+            return true;
+        } finally {
+            dellock.unlock();
+        }
+    }
+
 
     // 定期清理 ttlMap
     private void startCleanupTask() {
