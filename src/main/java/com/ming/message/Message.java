@@ -21,6 +21,8 @@ public abstract class Message implements Serializable {
 
     public static final int RewriteRequestMessage = 101;
     public static final int RewriteResponseMessage = 102;
+    public static final int SetNxRequestMessage = 103;
+    public static final int SetNxResponseMessage = 104;
     public static final int LoginRequestMessage = 0;
     public static final int LoginResponseMessage = 1;
     public static final int SetRequestMessage = 2;
@@ -41,5 +43,7 @@ public abstract class Message implements Serializable {
         messageClasses.put(GetResponseMessage, com.ming.message.get.GetResponseMessage.class);
         messageClasses.put(DeleteRequestMessage,com.ming.message.del.DelRequestMessage.class);
         messageClasses.put(DeleteResponseMessage,com.ming.message.del.DelResponseMessage.class);
+        messageClasses.put(SetNxRequestMessage,com.ming.message.setnx.SetNxRequestMessage.class);
+        messageClasses.put(SetNxResponseMessage,com.ming.message.setnx.SetNxResponseMessage.class);
     }
 }
