@@ -50,23 +50,22 @@ public class SetNxConfig {
      * - `ttlSeconds` 指定过期时间，自动删除
      * - 存储 `clientId`，防止误删
      */
-    public boolean setnx(String key, String value, int ttlSeconds) {
+    public String setnx(String key,String value, int ttlSeconds) {
         String clientId = UUID.randomUUID().toString(); // 生成唯一 Client ID
         int index = getShardIndex(key);
 
-        boolean success = setNxShards[index].computeIfAbsent(key, k -> {
-            if (ttlSeconds > 0) {
-                ttlMap.put(k, System.currentTimeMillis() + ttlSeconds * 1000L);
-            }
-            return clientId; // 存储 Client ID，防止误删
-        }) == clientId;
+        String storedClientId = setNxShards[index].computeIfAbsent(key, k -> {
+            ttlMap.put(k, System.currentTimeMillis() + ttlSeconds * 1000L);
+            return clientId; // 存储 clientId
+        });
 
-        return success;
+        return storedClientId.equals(clientId) ? clientId : null; // 只有成功获取锁的客户端才返回 clientId
     }
 
     /**
      * **DELETE (仅允许 `clientId` 持有者删除)**
      */
+
     public boolean deleteNx(String key, String clientId) {
         int index = getShardIndex(key);
         return setNxShards[index].computeIfPresent(key, (k, v) -> {
@@ -79,29 +78,17 @@ public class SetNxConfig {
     }
 
     /**
-     * **检查 Key 是否过期**
+     * 实现关门狗，延长key的时间  判断操作用户，
      */
-    public String get(String key) {
-        Long expireTime = ttlMap.get(key);
-        if (expireTime != null && System.currentTimeMillis() > expireTime) {
-            deleteExpiredKey(key);
-            return null;
-        }
+    public boolean delayNX(String key, String clientId, int ttlSeconds) {
         int index = getShardIndex(key);
-        return setNxShards[index].get(key);
+        return setNxShards[index].computeIfPresent(key,(k,value)->{
+            if (clientId.equals(value)) {
+                ttlMap.put(k, System.currentTimeMillis() + ttlSeconds * 1000L);
+                return value; // 续期成功，返回原值
+            }
+            return value; // 续期失败，保持原值
+        }) !=null; // 说明 `key` 仍然存在，续期成功
     }
 
-    /**
-     * **删除已过期 Key**
-     */
-    private void deleteExpiredKey(String key) {
-        lock.lock();
-        try {
-            int index = getShardIndex(key);
-            setNxShards[index].remove(key);
-            ttlMap.remove(key);
-        } finally {
-            lock.unlock();
-        }
-    }
 }
