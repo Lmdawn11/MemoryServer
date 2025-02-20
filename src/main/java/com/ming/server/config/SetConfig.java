@@ -16,6 +16,7 @@ public class SetConfig {
     private final ScheduledExecutorService cleaner; // 定时清理任务
     private static final int CLEAN_BATCH_SIZE = 100;  // 每次最多清理 100 个 key
     private static final double THRESHOLD_PERCENT = 0.1; // 10% 过期 key 触发暂停
+    private static int INIT_CAPACITY = 1024;
 
 
     //实现单例模式
@@ -24,7 +25,7 @@ public class SetConfig {
     private SetConfig() {
         this.setShards = new ArrayList<>(SHARD_COUNT);
         for (int i = 0; i < SHARD_COUNT; i++) {
-            setShards.add(new ConcurrentHashMap<>());
+            setShards.add(new ConcurrentHashMap<>(INIT_CAPACITY));
         }
 
         this.ttlMap = new ConcurrentHashMap<>();
@@ -60,7 +61,6 @@ public class SetConfig {
             }
             return value;
         });
-
     }
 
     // 存储 key-value，带 TTL ，由于要存两个hashmap，那么此时有4个操作，单个操作是原子性的，但是多个操作执行顺序将导致并发问题

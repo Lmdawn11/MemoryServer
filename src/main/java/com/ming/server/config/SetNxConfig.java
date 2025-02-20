@@ -9,8 +9,7 @@ public class SetNxConfig {
     private static final int SHARD_COUNT = 16; // 分片数量
     private final Map<String, String>[] setNxShards; // 存储 Key-Value（锁）
     private final ConcurrentHashMap<String, Long> ttlMap; // 存储 Key-TTL
-    private final ReentrantLock lock = new ReentrantLock(); // 全局锁，确保 `setnx()` 和 `deleteNx()` 的一致性
-
+    private static int INIT_CAPACITY = 1024;
     private static volatile SetNxConfig instance;
 
     /**
@@ -19,7 +18,7 @@ public class SetNxConfig {
     private SetNxConfig() {
         setNxShards = new ConcurrentHashMap[SHARD_COUNT];
         for (int i = 0; i < SHARD_COUNT; i++) {
-            setNxShards[i] = new ConcurrentHashMap<>();
+            setNxShards[i] = new ConcurrentHashMap<>(INIT_CAPACITY);
         }
         this.ttlMap = new ConcurrentHashMap<>();
     }
