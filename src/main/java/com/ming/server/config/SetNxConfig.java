@@ -12,6 +12,7 @@ public class SetNxConfig {
     private static int INIT_CAPACITY = 1024;
     private static volatile SetNxConfig instance;
 
+
     /**
      * 构造方法
      */
