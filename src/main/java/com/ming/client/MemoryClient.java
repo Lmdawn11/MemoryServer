@@ -2,10 +2,13 @@ package com.ming.client;
 
 import com.ming.client.handler.ClientHandler;
 import com.ming.message.del.DelRequestMessage;
+import com.ming.message.delaynx.DelayRequestMessage;
+import com.ming.message.delnx.DelNxRequestMessage;
 import com.ming.message.get.GetRequestMessage;
 import com.ming.message.get.GetResponseMessage;
 import com.ming.message.rewrite.RewriteRequestMessage;
 import com.ming.message.set.SetRequestMessage;
+import com.ming.message.setnx.SetNxRequestMessage;
 import com.ming.protocol.MessageCodec;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -52,6 +55,7 @@ public class MemoryClient {
                                     System.out.println("get key");
                                     System.out.println("delete key");
                                     System.out.println("rewrite");
+                                    System.out.println("setnx key value ttl");
                                     String line = scanner.nextLine();
                                     String[] command = line.split(" ");
                                     switch (command[0]) {
@@ -73,6 +77,17 @@ public class MemoryClient {
                                         case "rewrite":
                                             ctx.writeAndFlush(new RewriteRequestMessage(command[0]));
                                             break;
+                                        case "setnx":
+                                            Integer i = Integer.valueOf(command[3]);
+                                            ctx.writeAndFlush(new SetNxRequestMessage(command[1],command[2],i));
+                                            break;
+                                        case "delnx":
+                                            ctx.writeAndFlush(new DelNxRequestMessage(command[1],"1"));
+                                            break;
+                                        case "delaynx":
+                                            Integer ttl = Integer.valueOf(command[2]);
+                                            ctx.writeAndFlush(new DelayRequestMessage(command[1],ttl));
+                                            break;
                                         case "quit":
                                             ctx.channel().close();
                                             break;
@@ -83,7 +98,7 @@ public class MemoryClient {
                         }
                     });
 
-// 测试qps
+//                    // 单线程测试qps
 //                    ch.pipeline().addLast("hi", new ChannelInboundHandlerAdapter() {
 //                        private final AtomicInteger requestCount = new AtomicInteger(0);
 //                        private final AtomicInteger responseCount = new AtomicInteger(0);
@@ -95,7 +110,7 @@ public class MemoryClient {
 //                            log.info("client connected");
 //
 //                            startTime = System.currentTimeMillis();
-//                            endTime = startTime + 2_000; // **60 秒后停止**
+//                            endTime = startTime + 60_000; // **60 秒后停止**
 //
 //                            // **发送第一个请求**
 //                            sendRequest(ctx);
@@ -125,6 +140,9 @@ public class MemoryClient {
 //                            ctx.writeAndFlush(new GetRequestMessage("name"));
 //                        }
 //                    });
+
+
+
                 }
 
             });

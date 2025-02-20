@@ -32,6 +32,9 @@ public class MemoryServer {
         GetRequestMessageHandler getRequestMessageHandler = new GetRequestMessageHandler();
         DelRequestMessageHandler delRequestMessageHandler = new DelRequestMessageHandler();
         RewriteRequestMessageHandler rewriteRequestMessageHandler = new RewriteRequestMessageHandler();
+        SetNxRequestMessageHandler setNxRequestMessageHandler = new SetNxRequestMessageHandler();
+        DelNxRequestMessageHandler delNxRequestMessageHandler = new DelNxRequestMessageHandler();
+
         NioEventLoopGroup bosses = new NioEventLoopGroup();
         NioEventLoopGroup workers = new NioEventLoopGroup();
         try {
@@ -48,6 +51,8 @@ public class MemoryServer {
                     ch.pipeline().addLast(getRequestMessageHandler);
                     ch.pipeline().addLast(delRequestMessageHandler);
                     ch.pipeline().addLast(rewriteRequestMessageHandler);
+                    ch.pipeline().addLast(setNxRequestMessageHandler);
+                    ch.pipeline().addLast(delNxRequestMessageHandler);
                 }
 
             });

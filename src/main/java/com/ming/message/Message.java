@@ -23,6 +23,10 @@ public abstract class Message implements Serializable {
     public static final int RewriteResponseMessage = 102;
     public static final int SetNxRequestMessage = 103;
     public static final int SetNxResponseMessage = 104;
+    public static final int DelNxRequestMessage = 105;
+    public static final int DelNxResponseMessage = 106;
+    public static final int DelayNxRequestMessage = 107;
+    public static final int DelayNxResponseMessage = 108;
     public static final int LoginRequestMessage = 0;
     public static final int LoginResponseMessage = 1;
     public static final int SetRequestMessage = 2;

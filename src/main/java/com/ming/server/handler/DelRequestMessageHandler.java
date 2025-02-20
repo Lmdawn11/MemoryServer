@@ -20,7 +20,7 @@ public class DelRequestMessageHandler extends SimpleChannelInboundHandler<DelReq
         if (delete){
             resmsg = new DelResponseMessage(true, "ok");
         }else {
-            resmsg = new DelResponseMessage(true, "no key");
+            resmsg = new DelResponseMessage(false, "no key");
         }
         ctx.writeAndFlush(resmsg);
         log.info(resmsg.toString());
