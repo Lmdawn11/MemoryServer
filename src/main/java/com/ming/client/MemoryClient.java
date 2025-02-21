@@ -44,6 +44,7 @@ public class MemoryClient {
                     ch.pipeline().addLast("Response", clientHandler);
 //                    ch.pipeline().addLast("setResponse", setResponseHandler);
 //                    ch.pipeline().addLast("getResponse", getResponseHandler);
+
                     ch.pipeline().addLast("hi",new ChannelInboundHandlerAdapter(){
                         @Override
                         public void channelActive(ChannelHandlerContext ctx) throws Exception {
