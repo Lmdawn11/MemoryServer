@@ -1,14 +1,15 @@
 package com.ming.server.config;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import io.netty.util.HashedWheelTimer;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static java.nio.file.Files.delete;
 
+@Slf4j
 public class SetConfig {
     private static final int SHARD_COUNT = 16;  // 分片数
     private final List<ConcurrentHashMap<String, String>> setShards; // 存储 Key-Value
@@ -17,6 +18,7 @@ public class SetConfig {
     private static final int CLEAN_BATCH_SIZE = 100;  // 每次最多清理 100 个 key
     private static final double THRESHOLD_PERCENT = 0.1; // 10% 过期 key 触发暂停
     private static int INIT_CAPACITY = 1024;
+    private static final long TASK_TIMEOUT_MS = 30000; // **任务最大执行时间 30s**
 
 
     //实现单例模式
@@ -83,37 +85,52 @@ public class SetConfig {
         }) == null;
     }
 
+    public void startTimerTask(){
+        TimeWheelConfig timeWheelConfig = TimeWheelConfig.getTimeWheelConfig();
+        HashedWheelTimer timer = timeWheelConfig.getTimer();
+        timer.newTimeout(timeout -> {
+            Future<?> future = cleaner.submit(this::startCleanupTask);
+            try {
+                future.get(TASK_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            }catch (TimeoutException e) {
+                log.info("ttlMap，清理任务超时");
+                future.cancel(true); // **超时取消任务**
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+            startCleanupTask();
+        },1,TimeUnit.MINUTES);
+    }
 
     // 定期清理 ttlMap
     private void startCleanupTask() {
-        cleaner.scheduleAtFixedRate(()->{
-            long now = System.currentTimeMillis();
-            int expiredCount = 0;
-            int totalKeys = ttlMap.size();
+        long now = System.currentTimeMillis();
+        int expiredCount = 0;
+        int totalKeys = ttlMap.size();
 
-            if (totalKeys == 0) return;
+        if (totalKeys == 0) return;
 
-            Iterator<Map.Entry<String, Long>> iterator = ttlMap.entrySet().iterator();
-            while (iterator.hasNext()) {
-                if (expiredCount >= CLEAN_BATCH_SIZE) break;
-                Map.Entry<String, Long> entry = iterator.next();
-                if (entry.getValue() <now || entry.getValue() != -1){
-                    delete(entry.getKey());
-                    expiredCount++;
-                    iterator.remove();
-                }
+        Iterator<Map.Entry<String, Long>> iterator = ttlMap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            if (expiredCount >= CLEAN_BATCH_SIZE) break;
+            Map.Entry<String, Long> entry = iterator.next();
+            if (entry.getValue() <now || entry.getValue() != -1){
+                delete(entry.getKey());
+                expiredCount++;
+                iterator.remove();
             }
+        }
             // 计算当前 TTL Map 中的过期 key 占比
-            double expiredRatio = (expiredCount * 1.0) / totalKeys;
+        double expiredRatio = (expiredCount * 1.0) / totalKeys;
 
             // 如果过期 key 少于 THRESHOLD_PERCENT（比如 10%），则暂停清理
-            if (expiredRatio < THRESHOLD_PERCENT) {
-                try {
-                    Thread.sleep(10000); // 过期 key 少，休眠 10 秒
-                } catch (InterruptedException ignored) {}
-            }
-
-        }, 5,5,TimeUnit.SECONDS);
+        if (expiredRatio < THRESHOLD_PERCENT) {
+            try {
+                Thread.sleep(5000); // 过期 key 少，休眠 10 秒
+            } catch (InterruptedException ignored) {}
+        }
     }
 
     // 停止清理任务
