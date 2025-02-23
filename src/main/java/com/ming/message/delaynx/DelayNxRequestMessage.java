@@ -6,13 +6,15 @@ import lombok.ToString;
 
 @Data
 @ToString(callSuper=true)
-public class DelayRequestMessage extends Message {
+public class DelayNxRequestMessage extends Message {
     private String key;
     private int ttl;
+    private String clientId;
 
-    public DelayRequestMessage(String key,int ttl) {
+    public DelayNxRequestMessage(String key, int ttl, String clientId) {
         this.key = key;
         this.ttl = ttl;
+        this.clientId = clientId;
     }
 
     @Override

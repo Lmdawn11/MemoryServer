@@ -7,9 +7,9 @@ import lombok.ToString;
 
 @Data
 @ToString(callSuper=true)
-public class DelayResponseMessage extends AbstractResponseMessage {
+public class DelayNxResponseMessage extends AbstractResponseMessage {
 
-    public DelayResponseMessage(Boolean success, String reason) {
+    public DelayNxResponseMessage(Boolean success, String reason) {
         super(success,reason);
     }
 

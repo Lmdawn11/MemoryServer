@@ -2,10 +2,9 @@ package com.ming.client;
 
 import com.ming.client.handler.ClientHandler;
 import com.ming.message.del.DelRequestMessage;
-import com.ming.message.delaynx.DelayRequestMessage;
+import com.ming.message.delaynx.DelayNxRequestMessage;
 import com.ming.message.delnx.DelNxRequestMessage;
 import com.ming.message.get.GetRequestMessage;
-import com.ming.message.get.GetResponseMessage;
 import com.ming.message.rewrite.RewriteRequestMessage;
 import com.ming.message.set.SetRequestMessage;
 import com.ming.message.setnx.SetNxRequestMessage;
@@ -20,7 +19,6 @@ import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Scanner;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class MemoryClient {
@@ -86,7 +84,7 @@ public class MemoryClient {
                                             break;
                                         case "delaynx":
                                             Integer ttl = Integer.valueOf(command[2]);
-                                            ctx.writeAndFlush(new DelayRequestMessage(command[1],ttl));
+                                            ctx.writeAndFlush(new DelayNxRequestMessage(command[1],ttl,command[3]));
                                             break;
                                         case "quit":
                                             ctx.channel().close();

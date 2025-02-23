@@ -21,11 +21,13 @@ public class SetNxRequestMessageHandler extends SimpleChannelInboundHandler<SetN
         int ttl = msg.getTtl();
         SetNxConfig setNxConfig = SetNxConfig.getInstance();
         String clientid = setNxConfig.setnx(key, value, ttl);
+        SetNxResponseMessage ok;
         if (clientid != null) {
             log.info("存储成功,key:{},value:{},ttl:{}", key, value, ttl);
-            SetNxResponseMessage ok = new SetNxResponseMessage(true, clientid);
+            ok = new SetNxResponseMessage(true, clientid);
+        }else {
+            ok = new SetNxResponseMessage(false, clientid);
         }
-        SetNxResponseMessage ok = new SetNxResponseMessage(false, clientid);
         log.info(ok.toString());
         ctx.writeAndFlush(ok);
     }

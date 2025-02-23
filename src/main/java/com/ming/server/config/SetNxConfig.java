@@ -80,7 +80,7 @@ public class SetNxConfig {
     /**
      * 实现关门狗，延长key的时间  判断操作用户，
      */
-    public boolean delayNX(String key, String clientId, int ttlSeconds) {
+    public boolean delayNX(String key,int ttlSeconds ,String clientId ) {
         int index = getShardIndex(key);
         return setNxShards[index].computeIfPresent(key,(k,value)->{
             if (clientId.equals(value)) {
