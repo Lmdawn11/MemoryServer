@@ -1,5 +1,8 @@
 package com.ming.server.config;
 
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timeout;
+import io.netty.util.TimerTask;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
@@ -9,6 +12,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
 import java.util.concurrent.*;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.locks.ReentrantLock;
@@ -27,7 +31,7 @@ public class AOFManager {
 
     private final ReentrantLock lock = new ReentrantLock();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
+    private HashedWheelTimer timer;
     // **单例模式 - 只初始化一次**
     private static volatile AOFManager instance;
 
@@ -36,9 +40,17 @@ public class AOFManager {
         aofThread = new Thread(this::processAOFQueue);
         aofThread.start();
         readAOFToMemory();//读取aof中的内容到memory中
-        scheduler.scheduleAtFixedRate(this::checkAOFSizeAndRewrite,10,10, TimeUnit.MINUTES);
+        startTaskCheckAofSizeAndRewrite();
     }
 
+    private void startTaskCheckAofSizeAndRewrite() {
+        timer.newTimeout(new TimerTask() {
+            @Override
+            public void run(Timeout timeout) throws Exception {
+                checkAOFSizeAndRewrite();
+            }
+        }, 1, TimeUnit.MINUTES);
+    }
     /**
      * 检查 AOF 文件大小，并决定是否触发 rewriteAOF
      */

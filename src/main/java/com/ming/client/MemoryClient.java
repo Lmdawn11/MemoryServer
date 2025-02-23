@@ -54,6 +54,8 @@ public class MemoryClient {
                                     System.out.println("delete key");
                                     System.out.println("rewrite");
                                     System.out.println("setnx key value ttl");
+                                    System.out.println("delnx key clientId");
+                                    System.out.println("delaynx key ttl, clientId");
                                     String line = scanner.nextLine();
                                     String[] command = line.split(" ");
                                     switch (command[0]) {
