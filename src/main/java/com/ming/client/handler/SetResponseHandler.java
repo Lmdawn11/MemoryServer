@@ -15,4 +15,9 @@ public class SetResponseHandler extends SimpleChannelInboundHandler<SetResponseM
         log.info(response.toString());
         ctx.fireChannelRead(msg);
     }
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
+        ctx.close();  //发生异常时关闭连接
+    }
 }

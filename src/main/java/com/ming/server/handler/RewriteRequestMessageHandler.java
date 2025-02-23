@@ -23,4 +23,9 @@ public class RewriteRequestMessageHandler extends SimpleChannelInboundHandler<Re
             ctx.writeAndFlush(new RewriteResponseMessage(false, "AOF Rewrite 失败：" + e.getMessage()));
         }
     }
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
+        ctx.close();  //发生异常时关闭连接
+    }
 }

@@ -12,4 +12,9 @@ public class DelResponseHandler extends SimpleChannelInboundHandler<DelResponseM
         log.info(msg.toString());
         ctx.fireChannelRead(msg);
     }
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
+        ctx.close();  //发生异常时关闭连接
+    }
 }

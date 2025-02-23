@@ -29,4 +29,9 @@ public class DelNxRequestMessageHandler extends SimpleChannelInboundHandler<DelN
         ctx.writeAndFlush(resmsg);
         log.info(resmsg.toString());
     }
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
+        ctx.close();  //发生异常时关闭连接
+    }
 }

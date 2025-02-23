@@ -31,4 +31,10 @@ public class AofHandler extends ChannelInboundHandlerAdapter {
         log.info("写入aof success");
         super.channelRead(ctx, msg);
     }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
+        ctx.close();  //发生异常时关闭连接
+    }
 }
