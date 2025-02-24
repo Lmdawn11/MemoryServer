@@ -35,8 +35,8 @@ public class MemoryServer {
         SetNxRequestMessageHandler setNxRequestMessageHandler = new SetNxRequestMessageHandler();
         DelNxRequestMessageHandler delNxRequestMessageHandler = new DelNxRequestMessageHandler();
 
-        NioEventLoopGroup bosses = new NioEventLoopGroup();
-        NioEventLoopGroup workers = new NioEventLoopGroup();
+        NioEventLoopGroup bosses = new NioEventLoopGroup(1);
+        NioEventLoopGroup workers = new NioEventLoopGroup(10);
         try {
             ServerBootstrap serverBootstrap = new ServerBootstrap();
             serverBootstrap.group(bosses,workers);

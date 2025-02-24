@@ -44,6 +44,8 @@ public class AOFManager {
     }
 
     private void startTaskCheckAofSizeAndRewrite() {
+        TimeWheelConfig timeWheelConfig = TimeWheelConfig.getTimeWheelConfig();
+        timer = timeWheelConfig.getTimer();
         timer.newTimeout(new TimerTask() {
             @Override
             public void run(Timeout timeout) throws Exception {
