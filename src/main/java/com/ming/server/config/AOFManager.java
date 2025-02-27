@@ -1,5 +1,6 @@
 package com.ming.server.config;
 
+import com.ming.server.ioc.SimpleIOC;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import io.netty.util.TimerTask;
@@ -110,7 +111,7 @@ public class AOFManager {
         if (commandParts.length <2) return;
         String cmdType = commandParts[0];
         String key = commandParts[1];
-        SetConfig setShards = SetConfig.getSetConfig();
+        SetConfig setShards = SimpleIOC.getBean(SetConfig.class);
         switch (cmdType) {
             case "set":
                 String value = commandParts[2];
