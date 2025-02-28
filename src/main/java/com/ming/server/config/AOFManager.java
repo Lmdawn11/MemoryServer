@@ -1,5 +1,6 @@
 package com.ming.server.config;
 
+import com.ming.server.ioc.Bean;
 import com.ming.server.ioc.SimpleIOC;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
@@ -19,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
+@Bean
 public class AOFManager {
     private static final String AOF_FILE = "persistence/aof/aof.log"; // AOF 文件路径
     private static final String AOF_REWRITE_FILE = "persistence/aof/aof_rewrite.log"; // AOF 整理文件
@@ -33,8 +35,6 @@ public class AOFManager {
     private final ReentrantLock lock = new ReentrantLock();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private HashedWheelTimer timer;
-    // **单例模式 - 只初始化一次**
-    private static volatile AOFManager instance;
 
     public AOFManager() {
         readAOFToMemory();
@@ -45,7 +45,7 @@ public class AOFManager {
     }
 
     private void startTaskCheckAofSizeAndRewrite() {
-        TimeWheelConfig timeWheelConfig = TimeWheelConfig.getTimeWheelConfig();
+        TimeWheelConfig timeWheelConfig = SimpleIOC.getBean(TimeWheelConfig.class);
         timer = timeWheelConfig.getTimer();
         timer.newTimeout(new TimerTask() {
             @Override
@@ -122,20 +122,6 @@ public class AOFManager {
                 setShards.delete(key);
                 break;
         }
-    }
-
-    /**
-    单例模式，只初始化一次
-     **/
-    public static AOFManager getAOFManager() {
-        if (instance == null) {
-            synchronized (AOFManager.class) {
-                if (instance == null) {
-                    instance = new AOFManager();
-                }
-            }
-        }
-        return instance;
     }
 
     /**

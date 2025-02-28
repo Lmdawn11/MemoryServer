@@ -1,5 +1,6 @@
 package com.ming.server.config;
 
+import com.ming.server.ioc.Bean;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
+@Bean
 public class ListConfig {
     private final Map<String, LinkedList<String>> listMap = new ConcurrentHashMap<>();
     private volatile ListConfig instance;
