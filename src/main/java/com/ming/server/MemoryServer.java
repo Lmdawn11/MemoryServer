@@ -4,6 +4,7 @@ import com.ming.message.rewrite.RewriteRequestMessage;
 import com.ming.protocol.MessageCodec;
 import com.ming.server.config.SetConfig;
 import com.ming.server.handler.*;
+import com.ming.server.handler.push.LPushRequestMessageHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -34,6 +35,7 @@ public class MemoryServer {
         RewriteRequestMessageHandler rewriteRequestMessageHandler = new RewriteRequestMessageHandler();
         SetNxRequestMessageHandler setNxRequestMessageHandler = new SetNxRequestMessageHandler();
         DelNxRequestMessageHandler delNxRequestMessageHandler = new DelNxRequestMessageHandler();
+        LPushRequestMessageHandler lPushRequestMessageHandler = new LPushRequestMessageHandler();
 
         NioEventLoopGroup bosses = new NioEventLoopGroup(1);
         NioEventLoopGroup workers = new NioEventLoopGroup(10);
@@ -53,6 +55,7 @@ public class MemoryServer {
                     ch.pipeline().addLast(rewriteRequestMessageHandler);
                     ch.pipeline().addLast(setNxRequestMessageHandler);
                     ch.pipeline().addLast(delNxRequestMessageHandler);
+                    ch.pipeline().addLast(lPushRequestMessageHandler);
                 }
 
             });

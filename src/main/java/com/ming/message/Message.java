@@ -27,20 +27,18 @@ public abstract class Message implements Serializable {
     public static final int DelNxResponseMessage = 106;
     public static final int DelayNxRequestMessage = 107;
     public static final int DelayNxResponseMessage = 108;
-    public static final int LoginRequestMessage = 0;
-    public static final int LoginResponseMessage = 1;
     public static final int SetRequestMessage = 2;
     public static final int SetResponseMessage = 3;
     public static final int GetRequestMessage = 4;
     public static final int GetResponseMessage = 5;
     public static final int DeleteRequestMessage = 6;
     public static final int DeleteResponseMessage = 7;
+    public static final int LPushRequestMessage = 8;
+    public static final int LPushResponseMessage = 9;
 
     private static final Map<Integer, Class<?>> messageClasses = new HashMap<>();
 
     static {
-        messageClasses.put(LoginRequestMessage, LoginRequestMessage.class);
-        messageClasses.put(LoginResponseMessage, LoginResponseMessage.class);
         messageClasses.put(SetRequestMessage, com.ming.message.set.SetRequestMessage.class);
         messageClasses.put(SetResponseMessage, com.ming.message.set.SetResponseMessage.class);
         messageClasses.put(GetRequestMessage, com.ming.message.get.GetRequestMessage.class);
@@ -49,5 +47,11 @@ public abstract class Message implements Serializable {
         messageClasses.put(DeleteResponseMessage,com.ming.message.del.DelResponseMessage.class);
         messageClasses.put(SetNxRequestMessage,com.ming.message.setnx.SetNxRequestMessage.class);
         messageClasses.put(SetNxResponseMessage,com.ming.message.setnx.SetNxResponseMessage.class);
+        messageClasses.put(DelNxRequestMessage,com.ming.message.delnx.DelNxRequestMessage.class);
+        messageClasses.put(DelNxResponseMessage,com.ming.message.delnx.DelNxResponseMessage.class);
+        messageClasses.put(DelayNxRequestMessage,com.ming.message.delaynx.DelayNxRequestMessage.class);
+        messageClasses.put(DelayNxResponseMessage,com.ming.message.delaynx.DelayNxResponseMessage.class);
+        messageClasses.put(LPushRequestMessage,com.ming.message.list.push.LPushRequestMessage.class);
+        messageClasses.put(LPushResponseMessage,com.ming.message.list.push.LPushResponseMessage.class);
     }
 }
