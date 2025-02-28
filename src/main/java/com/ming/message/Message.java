@@ -37,6 +37,10 @@ public abstract class Message implements Serializable {
     public static final int LPushResponseMessage = 9;
     public static final int RPushRequestMessage = 10;
     public static final int RPushResponseMessage = 11;
+    public static final int LPopRequestMessage = 12;
+    public static final int LPopResponseMessage = 13;
+    public static final int RPopRequestMessage = 14;
+    public static final int RPopResponseMessage = 15;
 
     private static final Map<Integer, Class<?>> messageClasses = new HashMap<>();
 
@@ -57,5 +61,9 @@ public abstract class Message implements Serializable {
         messageClasses.put(LPushResponseMessage,com.ming.message.list.push.LPushResponseMessage.class);
         messageClasses.put(RPushRequestMessage,com.ming.message.list.push.RPushRequestMessage.class);
         messageClasses.put(RPushResponseMessage,com.ming.message.list.push.RPushResponseMessage.class);
+        messageClasses.put(LPopRequestMessage,com.ming.message.list.pop.LPopRequestMessage.class);
+        messageClasses.put(LPopResponseMessage,com.ming.message.list.pop.LPopResponseMessage.class);
+        messageClasses.put(RPopRequestMessage,com.ming.message.list.pop.RPopRequestMessage.class);
+        messageClasses.put(RPopResponseMessage,com.ming.message.list.pop.RPopResponseMessage.class);
     }
 }
