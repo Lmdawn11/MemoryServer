@@ -3,6 +3,7 @@ package com.ming.server.handler;
 import com.ming.message.set.SetRequestMessage;
 import com.ming.message.set.SetResponseMessage;
 import com.ming.server.config.SetConfig;
+import com.ming.server.ioc.SimpleIOC;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -16,7 +17,7 @@ public class SetRequestMessageHandler extends SimpleChannelInboundHandler<SetReq
         String key = msg.getKey();
         String value = msg.getValue();
         int ttl = msg.getTtl();
-        SetConfig setShards = SetConfig.getSetConfig();
+        SetConfig setShards = SimpleIOC.getBean(SetConfig.class);
         setShards.set(key,value,ttl);
         log.info("存储成功,key:{},value:{},ttl:{}", key, value, ttl);
         SetResponseMessage ok = new SetResponseMessage(true, "OK");

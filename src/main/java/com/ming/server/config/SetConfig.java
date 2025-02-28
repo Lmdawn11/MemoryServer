@@ -1,5 +1,7 @@
 package com.ming.server.config;
 
+import com.ming.server.ioc.Bean;
+import com.ming.server.ioc.SimpleIOC;
 import io.netty.util.HashedWheelTimer;
 import lombok.extern.slf4j.Slf4j;
 
@@ -10,6 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import static java.nio.file.Files.delete;
 
 @Slf4j
+@Bean
 public class SetConfig {
     private static final int SHARD_COUNT = 16;  // 分片数
     private final List<ConcurrentHashMap<String, String>> setShards; // 存储 Key-Value
@@ -20,11 +23,7 @@ public class SetConfig {
     private static int INIT_CAPACITY = 1024;
     private static final long TASK_TIMEOUT_MS = 30000; // **任务最大执行时间 30s**
 
-
-    //实现单例模式
-    private static volatile SetConfig instance;
-
-    private SetConfig() {
+    public SetConfig() {
         this.setShards = new ArrayList<>(SHARD_COUNT);
         for (int i = 0; i < SHARD_COUNT; i++) {
             setShards.add(new ConcurrentHashMap<>(INIT_CAPACITY));
@@ -32,18 +31,7 @@ public class SetConfig {
 
         this.ttlMap = new ConcurrentHashMap<>();
         this.cleaner = Executors.newScheduledThreadPool(1);
-        startCleanupTask(); // 开启定时清理任务
-    }
-
-    public static SetConfig getSetConfig() {
-        if (instance == null) {
-            synchronized (SetConfig.class) {
-                if (instance == null) {
-                    instance = new SetConfig();
-                }
-            }
-        }
-        return instance;
+        startTimerTask(); // 开启定时清理任务
     }
 
 
@@ -86,7 +74,7 @@ public class SetConfig {
     }
 
     public void startTimerTask(){
-        TimeWheelConfig timeWheelConfig = TimeWheelConfig.getTimeWheelConfig();
+        TimeWheelConfig timeWheelConfig = SimpleIOC.getBean(TimeWheelConfig.class);
         HashedWheelTimer timer = timeWheelConfig.getTimer();
         timer.newTimeout(timeout -> {
             Future<?> future = cleaner.submit(this::startCleanupTask);

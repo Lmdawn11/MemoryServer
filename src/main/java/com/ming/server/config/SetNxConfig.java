@@ -1,10 +1,13 @@
 package com.ming.server.config;
 
+import com.ming.server.ioc.Bean;
+
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
+@Bean
 public class SetNxConfig {
     private static final int SHARD_COUNT = 16; // 分片数量
     private final Map<String, String>[] setNxShards; // 存储 Key-Value（锁）
@@ -22,21 +25,6 @@ public class SetNxConfig {
             setNxShards[i] = new ConcurrentHashMap<>(INIT_CAPACITY);
         }
         this.ttlMap = new ConcurrentHashMap<>();
-    }
-
-    /**
-     * 单例模式
-     * @return
-     */
-    public static SetNxConfig getInstance() {
-        if (instance == null) {
-            synchronized (SetNxConfig.class) {
-                if (instance == null) {
-                    instance = new SetNxConfig();
-                }
-            }
-        }
-        return instance;
     }
 
     // 计算 key 所在的 shard

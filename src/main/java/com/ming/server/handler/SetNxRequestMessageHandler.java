@@ -6,6 +6,7 @@ import com.ming.message.setnx.SetNxRequestMessage;
 import com.ming.message.setnx.SetNxResponseMessage;
 import com.ming.server.config.SetConfig;
 import com.ming.server.config.SetNxConfig;
+import com.ming.server.ioc.SimpleIOC;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -19,7 +20,7 @@ public class SetNxRequestMessageHandler extends SimpleChannelInboundHandler<SetN
         String key = msg.getKey();
         String value = msg.getValue();
         int ttl = msg.getTtl();
-        SetNxConfig setNxConfig = SetNxConfig.getInstance();
+        SetNxConfig setNxConfig = SimpleIOC.getBean(SetNxConfig.class);
         String clientid = setNxConfig.setnx(key, value, ttl);
         SetNxResponseMessage ok;
         if (clientid != null) {
