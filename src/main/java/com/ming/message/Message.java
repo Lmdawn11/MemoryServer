@@ -35,6 +35,8 @@ public abstract class Message implements Serializable {
     public static final int DeleteResponseMessage = 7;
     public static final int LPushRequestMessage = 8;
     public static final int LPushResponseMessage = 9;
+    public static final int RPushRequestMessage = 10;
+    public static final int RPushResponseMessage = 11;
 
     private static final Map<Integer, Class<?>> messageClasses = new HashMap<>();
 
@@ -53,5 +55,7 @@ public abstract class Message implements Serializable {
         messageClasses.put(DelayNxResponseMessage,com.ming.message.delaynx.DelayNxResponseMessage.class);
         messageClasses.put(LPushRequestMessage,com.ming.message.list.push.LPushRequestMessage.class);
         messageClasses.put(LPushResponseMessage,com.ming.message.list.push.LPushResponseMessage.class);
+        messageClasses.put(RPushRequestMessage,com.ming.message.list.push.RPushRequestMessage.class);
+        messageClasses.put(RPushResponseMessage,com.ming.message.list.push.RPushResponseMessage.class);
     }
 }

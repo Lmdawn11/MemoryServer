@@ -7,6 +7,7 @@ import com.ming.message.delnx.DelNxRequestMessage;
 import com.ming.message.get.GetRequestMessage;
 import com.ming.message.get.GetResponseMessage;
 import com.ming.message.list.push.LPushRequestMessage;
+import com.ming.message.list.push.RPushRequestMessage;
 import com.ming.message.rewrite.RewriteRequestMessage;
 import com.ming.message.set.SetRequestMessage;
 import com.ming.message.set.SetResponseMessage;
@@ -95,6 +96,10 @@ public class MemoryClient {
                                         case "lpush":
                                             String[] values = command[2].split(",");
                                             ctx.writeAndFlush(new LPushRequestMessage(command[1],values));
+                                            break;
+                                        case "rpush":
+                                            values = command[2].split(",");
+                                            ctx.writeAndFlush(new RPushRequestMessage(command[1],values));
                                             break;
                                         case "quit":
                                             ctx.channel().close();
