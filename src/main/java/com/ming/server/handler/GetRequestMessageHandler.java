@@ -3,6 +3,7 @@ package com.ming.server.handler;
 import com.ming.message.get.GetRequestMessage;
 import com.ming.message.get.GetResponseMessage;
 import com.ming.server.config.SetConfig;
+import com.ming.server.ioc.SimpleIOC;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -13,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 public class GetRequestMessageHandler extends SimpleChannelInboundHandler<GetRequestMessage> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, GetRequestMessage msg) throws Exception {
-        SetConfig setShards = SetConfig.getSetConfig();
+        SetConfig setShards = SimpleIOC.getBean(SetConfig.class);
         String key = msg.getKey();
         String s = setShards.get(key);
         GetResponseMessage resmsg;

@@ -4,6 +4,7 @@ import com.ming.message.del.DelRequestMessage;
 import com.ming.message.get.GetRequestMessage;
 import com.ming.message.set.SetRequestMessage;
 import com.ming.server.config.AOFManager;
+import com.ming.server.ioc.SimpleIOC;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -16,7 +17,7 @@ public class AofHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
-        AOFManager aofManager = AOFManager.getAOFManager();
+        AOFManager aofManager = SimpleIOC.getBean(AOFManager.class);
         // 解析 `Message` 类型，并记录 AOF
         if (msg instanceof SetRequestMessage) {
             SetRequestMessage setMsg = (SetRequestMessage) msg;
