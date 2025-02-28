@@ -6,6 +6,8 @@ import com.ming.message.delaynx.DelayNxRequestMessage;
 import com.ming.message.delnx.DelNxRequestMessage;
 import com.ming.message.get.GetRequestMessage;
 import com.ming.message.get.GetResponseMessage;
+import com.ming.message.list.pop.LPopRequestMessage;
+import com.ming.message.list.pop.RPopRequestMessage;
 import com.ming.message.list.push.LPushRequestMessage;
 import com.ming.message.list.push.RPushRequestMessage;
 import com.ming.message.rewrite.RewriteRequestMessage;
@@ -100,6 +102,12 @@ public class MemoryClient {
                                         case "rpush":
                                             values = command[2].split(",");
                                             ctx.writeAndFlush(new RPushRequestMessage(command[1],values));
+                                            break;
+                                        case "lpop":
+                                            ctx.writeAndFlush(new LPopRequestMessage(command[1]));
+                                            break;
+                                        case "rpop":
+                                            ctx.writeAndFlush(new RPopRequestMessage(command[1]));
                                             break;
                                         case "quit":
                                             ctx.channel().close();

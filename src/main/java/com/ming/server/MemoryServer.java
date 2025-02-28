@@ -1,15 +1,13 @@
 package com.ming.server;
 
-import com.ming.message.rewrite.RewriteRequestMessage;
 import com.ming.protocol.MessageCodec;
-import com.ming.server.config.SetConfig;
 import com.ming.server.handler.*;
-import com.ming.server.handler.push.LPushRequestMessageHandler;
-import com.ming.server.handler.push.RPushRequestMessageHandler;
+import com.ming.server.handler.listHandler.LPopRequestMessageHandler;
+import com.ming.server.handler.listHandler.LPushRequestMessageHandler;
+import com.ming.server.handler.listHandler.RPopRequestMessageHandler;
+import com.ming.server.handler.listHandler.RPushRequestMessageHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -38,6 +36,8 @@ public class MemoryServer {
         DelNxRequestMessageHandler delNxRequestMessageHandler = new DelNxRequestMessageHandler();
         LPushRequestMessageHandler lPushRequestMessageHandler = new LPushRequestMessageHandler();
         RPushRequestMessageHandler rPushRequestMessageHandler = new RPushRequestMessageHandler();
+        RPopRequestMessageHandler rPopRequestMessageHandler = new RPopRequestMessageHandler();
+        LPopRequestMessageHandler lPopRequestMessageHandler = new LPopRequestMessageHandler();
 
         NioEventLoopGroup bosses = new NioEventLoopGroup(1);
         NioEventLoopGroup workers = new NioEventLoopGroup(10);
@@ -59,6 +59,8 @@ public class MemoryServer {
                     ch.pipeline().addLast(delNxRequestMessageHandler);
                     ch.pipeline().addLast(lPushRequestMessageHandler);
                     ch.pipeline().addLast(rPushRequestMessageHandler);
+                    ch.pipeline().addLast(rPopRequestMessageHandler);
+                    ch.pipeline().addLast(lPopRequestMessageHandler);
                 }
 
             });

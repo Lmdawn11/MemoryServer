@@ -1,4 +1,4 @@
-package com.ming.server.handler.push;
+package com.ming.server.handler.listHandler;
 
 import com.ming.message.list.push.LPushRequestMessage;
 import com.ming.message.list.push.LPushResponseMessage;
