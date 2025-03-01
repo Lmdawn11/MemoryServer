@@ -14,6 +14,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.List;
 
+import static com.ming.utils.ByteBufferUtil.debugAll;
+
 @Slf4j
 public class MessageCodec extends ByteToMessageCodec<Message> {
 
@@ -44,6 +46,7 @@ public class MessageCodec extends ByteToMessageCodec<Message> {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+        debugAll(in.nioBuffer());
         int magicNum = in.readInt();
         byte version = in.readByte();
         byte serializerType = in.readByte();
