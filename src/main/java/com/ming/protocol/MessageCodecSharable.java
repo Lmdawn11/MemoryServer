@@ -43,7 +43,7 @@ public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-        debugAll(in.nioBuffer());
+//        debugAll(in.nioBuffer());
         int magicNum = in.readInt();
         byte version = in.readByte();
         byte serializerType = in.readByte();
