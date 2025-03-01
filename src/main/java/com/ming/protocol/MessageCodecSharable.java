@@ -1,6 +1,5 @@
 package com.ming.protocol;
 
-import com.ming.Config;
 import com.ming.message.Message;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
@@ -9,6 +8,8 @@ import io.netty.handler.codec.MessageToMessageCodec;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+
+import static com.ming.utils.ByteBufferUtil.debugAll;
 
 @Slf4j
 @ChannelHandler.Sharable
@@ -42,6 +43,7 @@ public class MessageCodecSharable extends MessageToMessageCodec<ByteBuf, Message
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+        debugAll(in.nioBuffer());
         int magicNum = in.readInt();
         byte version = in.readByte();
         byte serializerType = in.readByte();

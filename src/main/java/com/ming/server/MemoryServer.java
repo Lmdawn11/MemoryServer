@@ -1,6 +1,7 @@
 package com.ming.server;
 
 import com.ming.protocol.MessageCodec;
+import com.ming.protocol.MessageCodecSharable;
 import com.ming.server.handler.*;
 import com.ming.server.handler.listHandler.LPopRequestMessageHandler;
 import com.ming.server.handler.listHandler.LPushRequestMessageHandler;
@@ -26,7 +27,8 @@ public class MemoryServer {
 
     public void StartServer(){
         LoggingHandler LOGGING_HANDLER = new LoggingHandler(LogLevel.DEBUG);
-        MessageCodec messageCodec = new MessageCodec();
+//        MessageCodec messageCodec = new MessageCodec();
+        MessageCodecSharable messageCodecSharable = new MessageCodecSharable();
         AofHandler aofHandler = new AofHandler();
         SetRequestMessageHandler setRequestMessageHandler = new SetRequestMessageHandler();
         GetRequestMessageHandler getRequestMessageHandler = new GetRequestMessageHandler();
@@ -49,7 +51,7 @@ public class MemoryServer {
                 @Override
                 protected void initChannel(SocketChannel ch) throws Exception {
                     ch.pipeline().addLast(LOGGING_HANDLER);
-                    ch.pipeline().addLast(messageCodec);
+                    ch.pipeline().addLast(messageCodecSharable);
                     ch.pipeline().addLast(aofHandler);
                     ch.pipeline().addLast(setRequestMessageHandler);
                     ch.pipeline().addLast(getRequestMessageHandler);

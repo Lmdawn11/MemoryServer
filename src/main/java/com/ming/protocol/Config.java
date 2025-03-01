@@ -1,7 +1,5 @@
-package com.ming;
+package com.ming.protocol;
 
-
-import com.ming.protocol.Serializer;
 
 import java.io.IOException;
 import java.io.InputStream;

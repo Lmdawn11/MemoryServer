@@ -15,6 +15,7 @@ import com.ming.message.set.SetRequestMessage;
 import com.ming.message.set.SetResponseMessage;
 import com.ming.message.setnx.SetNxRequestMessage;
 import com.ming.protocol.MessageCodec;
+import com.ming.protocol.MessageCodecSharable;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -31,7 +32,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MemoryClient {
     public void MemoryClient() {
         LoggingHandler LOGGING_HANDLER = new LoggingHandler(LogLevel.DEBUG);
-        MessageCodec messageCodec = new MessageCodec();
+//        MessageCodec messageCodec = new MessageCodec();
+        MessageCodecSharable messageCodecSharable = new MessageCodecSharable();
 //        SetResponseHandler setResponseHandler = new SetResponseHandler();
 //        GetResponseHandler getResponseHandler = new GetResponseHandler();
         ClientHandler clientHandler = new ClientHandler();
@@ -45,7 +47,7 @@ public class MemoryClient {
                 @Override
                 protected void initChannel(SocketChannel ch) throws Exception {
                     ch.pipeline().addLast(LOGGING_HANDLER);
-                    ch.pipeline().addLast(messageCodec);
+                    ch.pipeline().addLast(messageCodecSharable);
                     ch.pipeline().addLast("Response", clientHandler);
 //                    ch.pipeline().addLast("setResponse", setResponseHandler);
 //                    ch.pipeline().addLast("getResponse", getResponseHandler);
