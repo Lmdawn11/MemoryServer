@@ -17,7 +17,9 @@ public class RPushRequestMessageHandler extends SimpleChannelInboundHandler<RPus
         ListConfig listConfig = SimpleIOC.getBean(ListConfig.class);
         String key = msg.getKey();
         String[] values = msg.getValues();
-        listConfig.rpush(key, values);
+        int ttl = msg.getTtl();
+
+        listConfig.rpush(key,ttl, values);
         log.info("存储 rpush key:{},values:{}", key, values);
         ctx.writeAndFlush(new LPushResponseMessage(true,"ok"));
     }

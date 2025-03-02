@@ -8,12 +8,20 @@ import lombok.ToString;
 @ToString(callSuper=true)
 public class RPushRequestMessage extends Message {
 
+    private int ttl;
     private String key;
     private String[] values;
+
+    public RPushRequestMessage(String key, String[] values, int ttl) {
+        this.key = key;
+        this.values = values;
+        this.ttl = ttl;
+    }
 
     public RPushRequestMessage(String key, String[] values) {
         this.key = key;
         this.values = values;
+        this.ttl = -1;
     }
 
     @Override

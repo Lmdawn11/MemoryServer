@@ -102,11 +102,23 @@ public class MemoryClient {
                                             break;
                                         case "lpush":
                                             String[] values = command[2].split(",");
-                                            ctx.writeAndFlush(new LPushRequestMessage(command[1],values));
+                                            if (command.length == 3){
+                                                ctx.writeAndFlush(new LPushRequestMessage(command[1],values));
+                                            }else if (command.length == 4){
+                                                i = Integer.valueOf(command[3]);
+                                                ctx.writeAndFlush(new LPushRequestMessage(command[1],values,i));
+                                            }
+
+
                                             break;
                                         case "rpush":
                                             values = command[2].split(",");
-                                            ctx.writeAndFlush(new RPushRequestMessage(command[1],values));
+                                            if (command.length == 3){
+                                                ctx.writeAndFlush(new RPushRequestMessage(command[1],values));
+                                            }else if (command.length == 4){
+                                                i = Integer.valueOf(command[3]);
+                                                ctx.writeAndFlush(new RPushRequestMessage(command[1],values,i));
+                                            }
                                             break;
                                         case "lpop":
                                             ctx.writeAndFlush(new LPopRequestMessage(command[1]));

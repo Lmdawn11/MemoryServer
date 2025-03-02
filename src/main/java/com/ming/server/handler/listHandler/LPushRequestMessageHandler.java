@@ -17,7 +17,8 @@ public class LPushRequestMessageHandler extends SimpleChannelInboundHandler<LPus
         ListConfig listConfig = SimpleIOC.getBean(ListConfig.class);
         String key = msg.getKey();
         String[] values = msg.getValues();
-        listConfig.lpush(key, values);
+        int ttl = msg.getTtl();
+        listConfig.lpush(key,ttl, values);
         log.info("存储 lpush key:{},values:{}", key, values);
         ctx.writeAndFlush(new LPushResponseMessage(true,"ok"));
     }
