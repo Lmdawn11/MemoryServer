@@ -1,12 +1,14 @@
 package com.ming.message.set;
 
 import com.ming.message.Message;
+import com.ming.message.aofLogger.AOFLoggable;
+import com.ming.server.config.AOFManager;
 import lombok.Data;
 import lombok.ToString;
 
 @Data
 @ToString(callSuper=true)
-public class SetRequestMessage extends Message {
+public class SetRequestMessage extends Message implements AOFLoggable {
 
     private String key;
     private String value;
@@ -27,5 +29,10 @@ public class SetRequestMessage extends Message {
     @Override
     public int getMessageType() {
         return Message.SetRequestMessage;
+    }
+
+    @Override
+    public void logTo(AOFManager aofManager) {
+        aofManager.logCommand("set", key, value,String.valueOf(ttl));
     }
 }

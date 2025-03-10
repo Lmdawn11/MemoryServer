@@ -1,5 +1,6 @@
 package com.ming.server.handler;
 
+import com.ming.message.aofLogger.AOFLoggable;
 import com.ming.message.del.DelRequestMessage;
 import com.ming.message.get.GetRequestMessage;
 import com.ming.message.set.SetRequestMessage;
@@ -18,6 +19,11 @@ public class AofHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
         AOFManager aofManager = SimpleIOC.getBean(AOFManager.class);
+
+        if (msg instanceof AOFLoggable){
+            ((AOFLoggable) msg).logTo(aofManager);
+            log.info("写入aof success");
+        }
         // 解析 `Message` 类型，并记录 AOF
         if (msg instanceof SetRequestMessage) {
             SetRequestMessage setMsg = (SetRequestMessage) msg;
