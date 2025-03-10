@@ -24,17 +24,6 @@ public class AofHandler extends ChannelInboundHandlerAdapter {
             ((AOFLoggable) msg).logTo(aofManager);
             log.info("写入aof success");
         }
-        // 解析 `Message` 类型，并记录 AOF
-        if (msg instanceof SetRequestMessage) {
-            SetRequestMessage setMsg = (SetRequestMessage) msg;
-            aofManager.logCommand("set", setMsg.getKey(), setMsg.getValue(), String.valueOf(setMsg.getTtl()));
-        } else if (msg instanceof GetRequestMessage) {
-            GetRequestMessage getMsg = (GetRequestMessage) msg;
-            aofManager.logCommand("get", getMsg.getKey());
-        } else if (msg instanceof DelRequestMessage) {
-            DelRequestMessage delMsg = (DelRequestMessage) msg;
-            aofManager.logCommand("del", delMsg.getKey());
-        }
         log.info("写入aof success");
         super.channelRead(ctx, msg);
     }
